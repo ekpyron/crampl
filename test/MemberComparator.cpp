@@ -282,3 +282,13 @@ TEST_CASE("Complex member PointerRange comparison alias.", "[complex_pointer_ran
 		return PointerRange { lhs.ptr, lhs. size } < PointerRange { rhs.ptr, rhs.size };
 	});
 }
+
+TEST_CASE("Getter function comparison.", "[getter_function]")
+{
+	struct S { int get() const { return a; } int a; };
+	crampl::MemberComparator<&S::get> cmp;
+	S lhs, rhs;
+	for (lhs.a = -1; lhs.a < 2; ++lhs.a)
+		for (rhs.a = -1; rhs.a < 2; ++rhs.a)
+			REQUIRE(cmp(lhs, rhs) == (lhs.a < rhs.a));
+}

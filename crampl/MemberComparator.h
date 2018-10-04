@@ -46,6 +46,17 @@ struct MemberWrapper<m>
 	{ return obj.*m; }
 };
 
+// wrapper around pointers to member functions
+template<typename C, typename T, T (C::*m)() const>
+struct MemberWrapper<m>
+{
+	typedef C objectType;
+	typedef T valueType;
+
+	static valueType get(const objectType &obj) noexcept
+	{ return (obj.*m)(); }
+};
+
 // wrapper around integral constants
 template<auto M>
 struct MemberWrapper<M, std::enable_if_t<std::is_integral_v<decltype(M)>>>
