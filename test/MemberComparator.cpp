@@ -22,7 +22,7 @@
  *
  */
 
-#include <crampl/MemberComparator.h>
+#include <crampl/crampl.h>
 #include <catch2/catch.hpp>
 #include <algorithm>
 
@@ -238,22 +238,6 @@ TEST_CASE("Complex member PointerAndSize comparison.", "[complex_pointer_and_siz
 	});
 }
 
-template<typename PointerType>
-struct PointerRange {
-	template<typename SizeType>
-	PointerRange(PointerType ptr, SizeType size)
-	: begin(ptr), end(ptr ? ptr + size : nullptr) {}
-	PointerType begin = nullptr;
-	PointerType end = nullptr;
-	bool operator<(const PointerRange &rhs) const {
-		return std::lexicographical_compare(begin, end, rhs.begin, rhs.end);
-	}
-};
-
-template<typename PointerType, typename SizeType>
-PointerRange(PointerType c, SizeType s) -> PointerRange<PointerType>;
-
-
 TEST_CASE("Complex member PointerRange comparison.", "[complex_pointer_range]")
 {
 	struct S
@@ -261,14 +245,14 @@ TEST_CASE("Complex member PointerRange comparison.", "[complex_pointer_range]")
 		int *ptr;
 		int size;
 	};
-	typedef crampl::MemberComparator<crampl::ConstructFromMembers<PointerRange, &S::ptr, &S::size>()> CompareType;
+	typedef crampl::MemberComparator<crampl::ConstructFromMembers<crampl::PointerRange, &S::ptr, &S::size>()> CompareType;
 	test_complex_member<S, CompareType>([](const S &lhs, const S &rhs) -> bool {
-		return PointerRange { lhs.ptr, lhs. size } < PointerRange { rhs.ptr, rhs.size };
+		return crampl::PointerRange { lhs.ptr, lhs. size } < crampl::PointerRange { rhs.ptr, rhs.size };
 	});
 }
 
 template<auto PtrMember, auto SizeMember>
-constexpr auto MyPointerRangeCompare() { return crampl::ConstructFromMembers<PointerRange, PtrMember, SizeMember>(); }
+constexpr auto MyPointerRangeCompare() { return crampl::ConstructFromMembers<crampl::PointerRange, PtrMember, SizeMember>(); }
 
 TEST_CASE("Complex member PointerRange comparison alias.", "[complex_pointer_range_alias]")
 {
@@ -279,7 +263,7 @@ TEST_CASE("Complex member PointerRange comparison alias.", "[complex_pointer_ran
 	};
 	typedef crampl::MemberComparator<MyPointerRangeCompare<&S::ptr, &S::size>()> CompareType;
 	test_complex_member<S, CompareType>([](const S &lhs, const S &rhs) -> bool {
-		return PointerRange { lhs.ptr, lhs. size } < PointerRange { rhs.ptr, rhs.size };
+		return crampl::PointerRange { lhs.ptr, lhs. size } < crampl::PointerRange { rhs.ptr, rhs.size };
 	});
 }
 

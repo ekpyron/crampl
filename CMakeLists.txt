@@ -12,7 +12,9 @@ add_library(crampl INTERFACE)
 target_include_directories(crampl INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 set(CRAMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/crampl/MemberComparator.h
-        ${CMAKE_CURRENT_LIST_DIR}/crampl/NonTypeList.h)
+        ${CMAKE_CURRENT_LIST_DIR}/crampl/NonTypeList.h
+        ${CMAKE_CURRENT_LIST_DIR}/crampl/PointerRange.h
+        ${CMAKE_CURRENT_LIST_DIR}/crampl/crampl.h)
 target_sources(crampl INTERFACE ${CRAMPL_SOURCES})
 
 if (NOT CRAMPL_IS_SUBPROJECT)
