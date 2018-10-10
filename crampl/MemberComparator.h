@@ -29,6 +29,9 @@
 
 namespace crampl {
 
+template<typename T, typename Compare>
+struct PointerRange;
+
 namespace detail
 {
 
@@ -217,5 +220,21 @@ template<typename C, auto... M>
 constexpr detail::ConstructObjectFromMemberHelper<C, NonTypeList<M...>>* ConstructFromMembers() { return nullptr; };
 template<template<typename...> typename C, auto... M>
 constexpr detail::ConstructTemplateFromMemberHelper<C, NonTypeList<M...>>* ConstructFromMembers() { return nullptr; };
+
+template<auto PtrMember, auto SizeMember>
+constexpr auto PointerRangeCompare() { return ConstructFromMembers<PointerRange, PtrMember, SizeMember>(); }
+
+template<typename Compare, auto PtrMember, auto SizeMember>
+constexpr auto PointerRangeCompare() {
+    using T = typename detail::MemberWrapper<PtrMember>::valueType;
+    return ConstructFromMembers<PointerRange<T, Compare>, PtrMember, SizeMember>();
+}
+
+template<template<typename...> typename Compare, auto PtrMember, auto SizeMember>
+constexpr auto PointerRangeCompare() {
+    using T = typename detail::MemberWrapper<PtrMember>::valueType;
+    using derefValueType = std::decay_t<decltype(*std::declval<T>())>;
+    return ConstructFromMembers<PointerRange<T, Compare<derefValueType>>, PtrMember, SizeMember>();
+}
 
 }

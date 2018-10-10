@@ -9,10 +9,11 @@
 #pragma once
 
 #include <algorithm>
+#include <functional>
 
 namespace crampl {
 
-template<typename PointerType>
+template<typename PointerType, typename Compare = std::less<std::decay_t<decltype(*std::declval<PointerType>())>>>
 struct PointerRange {
     template<typename SizeType>
     PointerRange(PointerType ptr, SizeType size)
@@ -20,7 +21,8 @@ struct PointerRange {
     PointerType begin = nullptr;
     PointerType end = nullptr;
     bool operator<(const PointerRange &rhs) const {
-        return std::lexicographical_compare(begin, end, rhs.begin, rhs.end);
+        Compare cmp;
+        return std::lexicographical_compare(begin, end, rhs.begin, rhs.end, cmp);
     }
 };
 

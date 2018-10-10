@@ -85,7 +85,20 @@ TEST_CASE("Two integer struct second member comparison.", "[two_int_second]")
 
 namespace {
 template<typename T>
-struct CustomCompare;
+struct CustomCompare {
+	bool operator() (const T& lhs, const T& rhs) const {
+		return lhs < rhs;
+	}
+};
+
+template<typename T, typename Compare>
+struct CustomCompare<crampl::PointerRange<T, Compare>>
+{
+	bool operator()(const crampl::PointerRange<T, Compare>& lhs, const crampl::PointerRange<T, Compare>& rhs) const {
+		return lhs < rhs;
+	}
+};
+
 template<>
 struct CustomCompare<int>
 {
@@ -93,6 +106,7 @@ struct CustomCompare<int>
 		return (lhs & 1) < (rhs & 1);
 	}
 };
+
 template<>
 struct CustomCompare<float>
 {
@@ -217,10 +231,10 @@ void test_complex_member(std::function<bool(const S&, const S&)> reference)
 		std::array<int, 2> data_rhs;
 		S lhs{data_lhs.data(), data_lhs.size()};
 		S rhs{data_rhs.data(), data_rhs.size()};
-		for (data_lhs[0] = -1; data_lhs[0] < 2; ++data_lhs[0])
-			for (data_lhs[1] = -1; data_lhs[1] < 2; ++data_lhs[1])
-				for (data_rhs[0] = -1; data_rhs[0] < 2; ++data_rhs[0])
-					for (data_rhs[1] = -1; data_rhs[1] < 2; ++data_rhs[1])
+		for (data_lhs[0] = -2; data_lhs[0] < 3; ++data_lhs[0])
+			for (data_lhs[1] = -2; data_lhs[1] < 3; ++data_lhs[1])
+				for (data_rhs[0] = -2; data_rhs[0] < 3; ++data_rhs[0])
+					for (data_rhs[1] = -2; data_rhs[1] < 3; ++data_rhs[1])
 						REQUIRE(cmp(lhs, rhs) == reference (lhs, rhs));
 	}
 }
@@ -251,9 +265,6 @@ TEST_CASE("Complex member PointerRange comparison.", "[complex_pointer_range]")
 	});
 }
 
-template<auto PtrMember, auto SizeMember>
-constexpr auto MyPointerRangeCompare() { return crampl::ConstructFromMembers<crampl::PointerRange, PtrMember, SizeMember>(); }
-
 TEST_CASE("Complex member PointerRange comparison alias.", "[complex_pointer_range_alias]")
 {
 	struct S
@@ -261,9 +272,9 @@ TEST_CASE("Complex member PointerRange comparison alias.", "[complex_pointer_ran
 		int *ptr;
 		int size;
 	};
-	typedef crampl::MemberComparator<MyPointerRangeCompare<&S::ptr, &S::size>()> CompareType;
+	typedef crampl::MemberComparatorTemplate<CustomCompare, crampl::PointerRangeCompare<CustomCompare, &S::ptr, &S::size>()> CompareType;
 	test_complex_member<S, CompareType>([](const S &lhs, const S &rhs) -> bool {
-		return crampl::PointerRange { lhs.ptr, lhs. size } < crampl::PointerRange { rhs.ptr, rhs.size };
+		return crampl::PointerRange<int*, CustomCompare<int>> { lhs.ptr, lhs. size } < crampl::PointerRange<int*, CustomCompare<int>> { rhs.ptr, rhs.size };
 	});
 }
 
