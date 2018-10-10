@@ -95,12 +95,12 @@ using ObjectType = typename ObjectTypeHelper<NonTypeList<M...>>::type;
 // compareClass is the template used to instantiate the comparison operators for the members.
 // objectType is the base type to be compared.
 // Args is a list of MemberWrapper<...> types, that wrap member specifiers.
-template<template<typename> typename CompareTemplate, typename ObjectType, typename... Args>
+template<template<typename...> typename CompareTemplate, typename ObjectType, typename... Args>
 struct MemberComparator;
 
 
 // Recursion base case.
-template<template<typename> typename CompareTemplate, typename ObjectType, auto m, typename... Args>
+template<template<typename...> typename CompareTemplate, typename ObjectType, auto m, typename... Args>
 struct MemberComparator<CompareTemplate, ObjectType, MemberWrapper<m>, Args...> {
 	bool operator()(const ObjectType &lhs, const ObjectType &rhs) const
 	{
@@ -114,7 +114,7 @@ struct MemberComparator<CompareTemplate, ObjectType, MemberWrapper<m>, Args...> 
 };
 
 // Empty tail case.
-template<template<typename> typename CompareTemplate, typename ObjectType>
+template<template<typename...> typename CompareTemplate, typename ObjectType>
 struct MemberComparator<CompareTemplate, ObjectType> {
 	bool operator()(const ObjectType &lhs, const ObjectType& rhs) const
 	{
@@ -127,7 +127,7 @@ struct MemberComparator<CompareTemplate, ObjectType> {
 // Templated member comparator.
 // Compares the members specified by M... using the compare template CompareTemplate.
 // Deduces the type of the object to be compared from the list of member specifiers.
-template<template<typename> typename CompareTemplate, auto... M>
+template<template<typename...> typename CompareTemplate, auto... M>
 using MemberComparatorTemplate = detail::MemberComparator<CompareTemplate, detail::ObjectType<M...>, detail::MemberWrapper<M>...>;
 
 // Default member comparison according to std::less
