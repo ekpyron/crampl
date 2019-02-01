@@ -14,11 +14,19 @@
 #include "crampl/MultiKeyMap.h"
 
 using Example = crampl::MultiKeyMap<std::map, crampl::ComplexKey<int, std::greater<int>>, int, double>;
-
 using Example2 = crampl::MultiKeyMap<std::map, int, double, float, int, double>;
 using Xeample2 = std::map<int, std::map<double, std::map<float, std::map<int, double>>>>;
 
 TEST_CASE("MultiKeyMap") {
     REQUIRE(std::is_same_v<std::map<int, std::map<int, double>, std::greater<int>>, Example>);
     REQUIRE(std::is_same_v<Xeample2, Example2>);
+    REQUIRE(std::is_same_v<std::map<int, bool>, crampl::MultiKeyMap<std::map, int, bool>>);
+
+    crampl::MultiKeyMap<std::map, int, int, int> m3 { {21, { {42, 84} }} };
+    REQUIRE(crampl::find(m3, 21, 42) == std::optional<int>{84});
+
+    std::map<std::string, int> m4 {{"foo", 3}};
+    REQUIRE(!crampl::find(m4, "bar"));
+    REQUIRE(crampl::find(m4, "foo"));
+
 }
