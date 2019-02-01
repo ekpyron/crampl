@@ -9,6 +9,7 @@
 #pragma once
 
 #include <optional>
+#include <utility>
 
 namespace crampl {
 
@@ -71,6 +72,18 @@ std::optional<detail::MultiKeyMapValueType_t<A>> find(A&& map, B&& key, C&&... k
         if (map.find(key) == map.end())
             return {};
         return { it->second };
+    }
+}
+
+template<typename A, typename B, typename... C>
+detail::MultiKeyMapValueType_t<A> &emplace(A&& map, std::piecewise_construct_t, B&& key, C&&... keys)
+{
+    if constexpr (sizeof...(keys) > 1) {
+        auto [it, _] = map.emplace(std::piecewise_construct, std::forward<B>(key), std::forward_as_tuple());
+        return emplace(it->second, std::piecewise_construct, std::forward<C>(keys)...);
+    } else {
+        auto [it, _] = map.emplace(std::piecewise_construct, std::forward<B>(key), std::forward<C>(keys)...);
+        return it->second;
     }
 }
 

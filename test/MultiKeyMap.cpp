@@ -29,4 +29,25 @@ TEST_CASE("MultiKeyMap") {
     REQUIRE(!crampl::find(m4, "bar"));
     REQUIRE(crampl::find(m4, "foo"));
 
+
+    {
+        auto six = crampl::emplace(m4, std::piecewise_construct, std::forward_as_tuple("baz"),
+                                   std::forward_as_tuple(6));
+        REQUIRE(six == 6);
+        REQUIRE(crampl::find(m4, "baz") == std::optional<int>{6});
+        auto alsoSix = crampl::emplace(m4, std::piecewise_construct, std::forward_as_tuple("baz"),
+                                       std::forward_as_tuple(7));
+        REQUIRE(alsoSix == 6);
+    }
+
+    {
+        auto& three = crampl::emplace(m3, std::piecewise_construct, std::forward_as_tuple(1), std::forward_as_tuple(2), std::forward_as_tuple(3));
+        REQUIRE(three == 3);
+        auto alsoThree = crampl::emplace(m3, std::piecewise_construct, std::forward_as_tuple(1), std::forward_as_tuple(2), std::forward_as_tuple(789));
+        REQUIRE(alsoThree == 3);
+        REQUIRE(crampl::find(m3, 1, 2) == 3);
+        three = 4;
+        REQUIRE(crampl::find(m3, 1, 2) == 4);
+    }
+
 }
