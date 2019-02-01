@@ -8,6 +8,8 @@
  */
 #pragma once
 
+#include <optional>
+
 namespace crampl {
 
 template<typename Key, typename...>
