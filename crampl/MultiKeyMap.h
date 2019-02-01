@@ -8,8 +8,6 @@
  */
 #pragma once
 
-#include <map>
-
 namespace crampl {
 
 template<typename Key, typename...>

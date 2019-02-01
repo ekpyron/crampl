@@ -7,6 +7,8 @@
  * @date 2/1/19
  */
 
+#include <map>
+
 #include <catch2/catch.hpp>
 
 #include "crampl/MultiKeyMap.h"
