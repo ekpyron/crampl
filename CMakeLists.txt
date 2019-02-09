@@ -16,6 +16,7 @@ set(CRAMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/crampl/PointerRange.h
         ${CMAKE_CURRENT_LIST_DIR}/crampl/ForEachMember.h
         ${CMAKE_CURRENT_LIST_DIR}/crampl/MultiKeyMap.h
+        ${CMAKE_CURRENT_LIST_DIR}/crampl/ContainerContainer.h
         ${CMAKE_CURRENT_LIST_DIR}/crampl/crampl.h)
 target_sources(crampl INTERFACE ${CRAMPL_SOURCES})
 
