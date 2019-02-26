@@ -12,7 +12,6 @@
 
 namespace crampl {
 
-
 namespace detail {
 template<class F, class...Ts, std::size_t...Is>
 constexpr void for_each_in_tuple_impl(std::tuple<Ts...> &tuple, F func, std::index_sequence<Is...>) {
@@ -24,120 +23,24 @@ template<class F, class...Ts>
 constexpr void for_each_in_tuple(std::tuple<Ts...> &tuple, F func) {
     for_each_in_tuple_impl(tuple, func, std::make_index_sequence<sizeof...(Ts)>());
 }
-/*
-template<typename Container, std::size_t = 0>
-struct has_compile_time_size: std::false_type {};
-
-template<typename Container>
-constexpr std::size_t getSizeOf() {
-    Container container{};
-    return container.size() - container.size();
-}
-
-template<typename Container>
-struct has_compile_time_size<Container, getSizeOf<Container>()> {};
-
-template<typename Container>
-struct compile_time_size_tag {
-    static constexpr std::size_t N = []() { Container c; return c.size(); } ();
-};
-
-template<typename Container>
-constexpr std::size_t count_compile_time_sizes() {
-    Container container;
-    constexpr std::size_t N = container.size();
-    return 1;
-}
-
-template<typename Container>
-constexpr std::size_t count_compile_time_sizes() {
-    return 0;
-}
-
-*/
-
-
-template <class T, size_t N = T{}.size()>
-constexpr inline std::optional<std::size_t> constexpr_size2(const T &t) {
-    return {t.size()};
-}
-constexpr inline std::optional<std::size_t> constexpr_size2(...) {
-    return {};
-}
-
-template <class T, size_t N = T{}.size()>
-constexpr inline std::true_type constexpr_size(const T &) {
-    return {};
-}
-constexpr inline std::false_type constexpr_size(...) {
-    return {};
-}
-
-template<typename T>
-constexpr bool has_constexpr_size = decltype(constexpr_size(T{}))::value;
-
-template<typename Container, typename... Tail>
-struct has_compile_time_sized_container {
-private:
-    static constexpr bool getValue() {
-        if constexpr (sizeof...(Tail) > 0) {
-            return has_constexpr_size<Container> || has_compile_time_sized_container<Tail...>::value;
-        } else {
-            return has_constexpr_size<Container>;
-        }
-    }
-
-public:
-    static constexpr bool value = getValue();
-
-    static constexpr std::size_t size(std::tuple<Container&, Tail&...> containers) {
-        return size(containers, std::make_index_sequence<sizeof...(Tail)>());
-    }
-    template<std::size_t... N>
-    static constexpr std::size_t size(std::tuple<Container&, Tail&...> containers, std::index_sequence<N...>) {
-        if constexpr (constexpr_size2<Container>(std::get<0>(containers))) {
-            return *constexpr_size2<Container>(std::get<0>(containers));
-        } else {
-            return has_compile_time_sized_container<Tail...>::size(std::get<N>(containers)...);
-            /*if constexpr (sizeof...(Tail) > 0) {
-            } else {
-                return Container{}.size();
-            }*/
-        }
-    }
-};
-
-
 }
 
 template<typename... Containers>
 class ContainerContainer {
-    static constexpr void sizeCheck(std::tuple<Containers&...> containers) {
-        static_assert(detail::has_constexpr_size<std::array<int, 1>>);
-        static_assert(!detail::has_constexpr_size<std::vector<int>>);
-
-        /*if constexpr (detail::has_compile_time_sized_container<Containers...>::value) {
-            static_assert(detail::has_compile_time_sized_container<Containers...>::size(containers) > 0);
-        } else*/ {
-            std::optional<std::size_t> firstSize{};
-            bool result = true;
-            detail::for_each_in_tuple(containers, [&](const auto &c) {
-                if (firstSize)
-                    result &= *firstSize == c.size();
-                else
-                    firstSize = c.size();
-            });
-            if (!result)
-                throw std::runtime_error("invalid container sizes");
-        }
-
+    static void sizeCheck(std::tuple<Containers&...> containers) {
+        std::optional<std::size_t> firstSize{};
+        bool result = true;
+        detail::for_each_in_tuple(containers, [&](const auto &c) {
+            if (firstSize)
+                result &= *firstSize == c.size();
+            else
+                firstSize = c.size();
+        });
+        if (!result)
+            throw std::runtime_error("invalid container sizes");
     }
 public:
-    struct DontCheckSizes {};
-    constexpr ContainerContainer(DontCheckSizes, Containers&... containers): containers(containers...) {
-        sizeCheck(this->containers);
-    }
-    constexpr ContainerContainer(Containers&... containers): containers(containers...) {
+    ContainerContainer(Containers&... containers): containers(containers...) {
         sizeCheck(this->containers);
     }
 
