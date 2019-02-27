@@ -104,8 +104,8 @@ TEST_CASE("function")
 
 		REQUIRE(c.copyCount() == 0);
 		REQUIRE(c.moveCount() == 0);
-		REQUIRE(f() == std::make_tuple(1, 2));
-		REQUIRE(f() == std::make_tuple(1, 2));
+		REQUIRE(f() == std::make_tuple(1, 1));
+		REQUIRE(f() == std::make_tuple(1, 1));
 	}
 
 	{
@@ -121,10 +121,10 @@ TEST_CASE("function")
 		REQUIRE(c.moveCount() == 0);
 		auto counts = f();
 		REQUIRE(std::get<0>(counts) == 0);
-		REQUIRE(std::get<1>(counts) == 3);
+		REQUIRE(std::get<1>(counts) == 2);
 		counts = f();
 		REQUIRE(std::get<0>(counts) == 0);
-		REQUIRE(std::get<1>(counts) == 3);
+		REQUIRE(std::get<1>(counts) == 2);
 	}
 
 	{
@@ -142,10 +142,38 @@ TEST_CASE("function")
 
 		auto counts = f();
 		REQUIRE(std::get<0>(counts) == 0);
-		REQUIRE(std::get<1>(counts) == 3);
+		REQUIRE(std::get<1>(counts) == 2);
 		counts = f();
 		REQUIRE(std::get<0>(counts) == 0);
+		REQUIRE(std::get<1>(counts) == 2);
+	}
+
+	{
+		CopyMoveCounter c{};
+		REQUIRE(c.copyCount() == 0);
+		REQUIRE(c.moveCount() == 0);
+		auto callable = [c = std::move(c)] {
+			return std::make_tuple(c.copyCount(), c.moveCount());
+		};
+		REQUIRE(std::get<0>(callable()) == 0);
+		REQUIRE(std::get<1>(callable()) == 1);
+
+		crampl::Function<std::tuple<int,int>()> f{std::move(callable)};
+
+		auto counts = f();
+		REQUIRE(std::get<0>(counts) == 0);
+		REQUIRE(std::get<1>(counts) == 2);
+		counts = f();
+		REQUIRE(std::get<0>(counts) == 0);
+		REQUIRE(std::get<1>(counts) == 2);
+
+		crampl::Function<std::tuple<int,int>()> g = std::move(f);
+
+		REQUIRE_THROWS_AS(f(), crampl::bad_call);
+		counts = g();
+		REQUIRE(std::get<0>(counts) == 0);
 		REQUIRE(std::get<1>(counts) == 3);
+
 	}
 
 	{
