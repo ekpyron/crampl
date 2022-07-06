@@ -6,7 +6,7 @@
  * @author clonker
  * @date 2/8/19
  */
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "crampl/ContainerContainer.h"
 

@@ -26,6 +26,7 @@
 #include <crampl/NonTypeList.h>
 #include <type_traits>
 #include <functional>
+#include <utility>
 
 namespace crampl {
 
@@ -35,11 +36,17 @@ struct PointerRange;
 namespace detail
 {
 
+template<typename T>
+constexpr bool is_non_invokable = !std::is_function_v<T>;
+
+template<typename T>
+concept NonInvokable = is_non_invokable<T>;
+
 template<auto M, typename = void>
 struct MemberWrapper;
 
 // wrapper around member pointers
-template<typename C, typename T, T C::*m>
+template<typename C, NonInvokable T, T C::*m>
 struct MemberWrapper<m>
 {
 	typedef C objectType;

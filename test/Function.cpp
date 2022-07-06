@@ -1,5 +1,5 @@
 #include <crampl/crampl.h>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <functional>
 
 class NonCopyableInt {
