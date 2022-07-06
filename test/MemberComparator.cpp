@@ -23,7 +23,7 @@
  */
 
 #include <crampl/crampl.h>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <algorithm>
 
 TEST_CASE("Single integer struct comparison.", "[single_int]")
@@ -280,7 +280,10 @@ TEST_CASE("Complex member PointerRange comparison alias.", "[complex_pointer_ran
 
 TEST_CASE("Getter function comparison.", "[getter_function]")
 {
-	struct S { int get() const { return a; } int a; };
+	struct S {
+        int get() const { return a; }
+        int a;
+    };
 	crampl::MemberComparator<&S::get> cmp;
 	S lhs, rhs;
 	for (lhs.a = -1; lhs.a < 2; ++lhs.a)

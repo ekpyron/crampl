@@ -9,6 +9,8 @@
 #pragma once
 
 #include <tuple>
+#include <stdexcept>
+#include <optional>
 
 namespace crampl {
 
