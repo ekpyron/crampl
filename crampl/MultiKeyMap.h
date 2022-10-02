@@ -10,6 +10,7 @@
 
 #include <optional>
 #include <utility>
+#include <ranges>
 
 namespace crampl {
 
@@ -55,8 +56,8 @@ using MultiKeyMapValueType_t = typename MultiKeyMapValueType<std::decay_t<T>>::t
 }
 
 
-template<template<typename...> typename MapKind, typename... KeyTypes___And___ValueType>
-using MultiKeyMap = typename detail::MultiKeyMap<MapKind, KeyTypes___And___ValueType...>::type;
+template<template<typename...> typename MapKind, typename... KeyTypes_AND_ValueType>
+using MultiKeyMap = typename detail::MultiKeyMap<MapKind, KeyTypes_AND_ValueType...>::type;
 
 
 template<typename A, typename B, typename... C>
